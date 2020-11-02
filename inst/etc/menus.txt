@@ -1,0 +1,7 @@
+# type  menu/item     operation/parent  label                                        command/menu    activation     install?
+menu    dccvMenu      topMenu           ""                                           ""              ""             ""
+item    dccvMenu      command           "Fit parametric model..."                    DCCVp           ""             "packageAvailable('DCchoice')"
+item    dccvMenu      command           "Calculate confidence intervals for WTP..."  DCCVpCIWTP      ""             "packageAvailable('DCchoice')"
+item    dccvMenu      command           "Draw survival function..."                  DCCVpPlot       ""             "packageAvailable('DCchoice')"
+item    topMenu       cascade           "DCCV"                                       dccvMenu        ""             "packageAvailable('DCchoice')"
+
