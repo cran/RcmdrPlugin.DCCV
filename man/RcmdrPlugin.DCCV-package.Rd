@@ -4,6 +4,8 @@
 \alias{DCCVp}
 \alias{DCCVpCIWTP}
 \alias{DCCVpPlot}
+\alias{DCCVpP}
+\alias{resetDCCVpModel}
 
 \title{R Commander Plug-in for Parametric Analysis of Dichotomous Choice 
 Contingent Valuation Data}
@@ -65,23 +67,23 @@ Hideo Aizaki
 Aizaki H, Nakatani T, Sato K (2014) 
 \emph{Stated Preference Methods Using R}. 
 Chapman and Hall/CRC. 
-\url{https://doi.org/10.1201/b17292}.
+DOI: 10.1201/b17292.
 
 Carson RT, Hanemann WM (2005) Contingent valuation. 
 In KG Maler, JR Vincent (eds), 
 \emph{Handbook of Environmental Economics}, 
 Volume 2, Chapter 17, pp. 821--936. Elsevier.
-\url{https://doi.org/10.1016/S1574-0099(05)02017-6}.
+DOI: 10.1016/S1574-0099(05)02017-6.
 
 Fox J (2005) The R Commander: A Basic Statistics Graphical User Interface to R. 
 \emph{Journal of Statistical Software}, 14(9): 1--42. 
-\url{https://doi.org/10.18637/jss.v014.i09}.
+DOI: 10.18637/jss.v014.i09.
 
 Fox J (2017) \emph{Using the R Commander: A Point-and-Click Interface for R}.
 Chapman and Hall/CRC. 
-\url{https://doi.org/10.1201/9781315380537}.
+DOI: 10.1201/9781315380537.
 
-Fox J, Bouchet-Valat M (2020) Rcmdr: R Commander. R package version 2.7-0.
+Fox J, Bouchet-Valat M (2020) Rcmdr: R Commander. R package version 2.7-1.
  \url{https://socialsciences.mcmaster.ca/jfox/Misc/Rcmdr/}.
 
 Nakatani T, Aizaki H, Sato K (2020) 
@@ -91,8 +93,8 @@ R package 0.0.17.
 }
 
 \examples{
-\dontrun{
-library(RcmdrPlugin.DCCV)
+if (interactive()) {
+  library(RcmdrPlugin.DCCV)
 }
 }
 

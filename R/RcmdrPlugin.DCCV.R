@@ -21,10 +21,44 @@
 ###############################################################################
 DCCVp <- function() {
   initializeDialog(title = gettextRcmdr("Fit Parametric Model"))
+  defaults <- list(
+    ini.dcVariable  = "1",
+    ini.resVar1BOX  = gettextRcmdr("<no variable selected>"),
+    ini.resVar2BOX  = gettextRcmdr("<no variable selected>"),
+    ini.bidVar1BOX  = gettextRcmdr("<no variable selected>"),
+    ini.bidVar2BOX  = gettextRcmdr("<no variable selected>"),
+    ini.logCheckVar = "0",
+    ini.distVar     = "'logistic'",
+    ini.initParName = "")
+  dialog.values <- getDialog("DCCVp", defaults)
+
+
+  .activeModel <- ActiveModel()
+  currentModel <- if (!is.null(.activeModel)) {
+    any(class(get(.activeModel, envir = .GlobalEnv))[1] == c("dbchoice", "sbchoice", "oohbchoice"))
+  } else {
+    FALSE
+  }
+  if (currentModel) {
+    currentFields <- formulaFields(get(.activeModel, envir = .GlobalEnv))
+    if (currentFields$data != ActiveDataSet()) currentModel <- FALSE
+  }
+
+  # remove a second part of rhs from the current model formula
+  if (currentModel) {
+    currentRhs <- currentFields$rhs
+    currentRhs <- unlist(strsplit(currentRhs, "\\|"))[1]
+    currentFields$rhs <- currentRhs
+  }
+
+  if (isTRUE(getRcmdr("reset.model"))) {
+    currentModel <- FALSE
+    putRcmdr("reset.model", FALSE)
+  }
+
  
   UpdateModelNumber()
   modelName  <- tclVar(paste("Model.", getRcmdr("modelNumber"), sep = ""))
-  currentModel <- FALSE
   modelFrame <- tkframe(top)
   model      <- ttkentry(modelFrame, width = "20", textvariable = modelName)
    
@@ -42,19 +76,19 @@ DCCVp <- function() {
                labels  = gettextRcmdr(c("Single-bounded (SB)",
                                         "One-and-one-half-bounded (OOHB)",
                                         "Double-bounded (DB)")),
-               initialValue = "1",
+               initialValue = dialog.values$ini.dcVariable,
                title = gettextRcmdr("Choice format"))   
 
   resVar1BOX <- variableComboBox(
     resVarsFrame,
     Variables(),
-    initialSelection = gettextRcmdr("<no variable selected>"),
+    initialSelection = dialog.values$ini.resVar1BOX,
     title = gettextRcmdr("1st response variable"))
   
   resVar2BOX <- variableComboBox(
     resVarsFrame,
     Variables(),
-    initialSelection = gettextRcmdr("<no variable selected>"),
+    initialSelection = dialog.values$ini.resVar2BOX,
     title = gettextRcmdr("2nd response variable"))
   
   modelFormula(hasLhs = FALSE, rhsExtras = NULL)
@@ -62,16 +96,16 @@ DCCVp <- function() {
   bidVar1BOX <- variableComboBox(
     bidVarsFrame,
     Variables(),
-    initialSelection = gettextRcmdr("<no variable selected>"),
+    initialSelection = dialog.values$ini.bidVar1BOX,
     title = gettextRcmdr("1st bid variable"))
   
   bidVar2BOX <- variableComboBox(
     bidVarsFrame,
     Variables(),
-    initialSelection = gettextRcmdr("<no variable selected>"),
+    initialSelection = dialog.values$ini.bidVar2BOX,
     title = gettextRcmdr("2nd bid variable"))
   
-  logCheckVar <- tclVar("0")
+  logCheckVar <- tclVar(dialog.values$ini.logCheckVar)
   logCheckButton <- ttkcheckbutton(bidVarsFrame, variable = logCheckVar)
   
   radioButtons(optionsFrame, name = "dist", 
@@ -80,12 +114,12 @@ DCCVp <- function() {
                            "'log-normal'", "'weibull'"),
                labels  = gettextRcmdr(c("Logistic", "Normal", "Log-logistic",
                                         "Log-normal", "Weibull")),
-               initialValue = "'logistic'",
+               initialValue = dialog.values$ini.distVar,
                title = gettextRcmdr("Distribution"))   
 
   subsetBox(optionsFrame, model = TRUE)
   
-  initParName <- tclVar("")
+  initParName <- tclVar(dialog.values$ini.initParName)
   initPar     <- ttkentry(initParFrame, width = 25, textvariable = initParName)
        
   onOK <- function() {
@@ -137,6 +171,18 @@ DCCVp <- function() {
     } else {
       cmd.initPar <- paste(", par = c(", tclvalue(initParName), ")", sep = "")
     }
+
+
+    putDialog("DCCVp", list(
+      ini.dcVariable = tclvalue(dcVariable),
+      ini.resVar1BOX  = resVar1,
+      ini.resVar2BOX  = resVar2,
+      ini.bidVar1BOX  = bidVar1,
+      ini.bidVar2BOX  = bidVar2,
+      ini.logCheckVar = tclvalue(logCheckVar),
+      ini.distVar     = tclvalue(distVariable),
+      ini.initParName = tclvalue(initParName)))    
+
                   
     closeDialog()
 
@@ -188,8 +234,9 @@ DCCVp <- function() {
 
 
   OKCancelHelp(helpSubject = "dbchoice",
-               reset       = "DCCVp",
-               apply       = NULL)
+               model       = TRUE,
+               reset       = "resetDCCVpModel",
+               apply       = "DCCVp")
 
   tkgrid(labelRcmdr(modelFrame, text = gettextRcmdr("Name for model ")),
          model, sticky = "w")
@@ -239,9 +286,27 @@ DCCVp <- function() {
   dialogSuffix(preventDoubleClick = TRUE)
 }
 
+
+resetDCCVpModel <- function(){
+  putRcmdr("reset.model", TRUE)
+  putDialog("DCCVp", NULL)
+  putDialog("DCCVp", NULL, resettable = FALSE)
+  DCCVp()
+}
+
+
 ###############################################################################
 DCCVpCIWTP <- function() {
-  initializeDialog(title = gettextRcmdr("Calculate Confidence Intervals for WTP"))
+  initializeDialog(
+    title = gettextRcmdr("Calculate Confidence Intervals for WTP"))
+  defaults <- list(
+    ini.outputName    = "WTP",
+    ini.methodtypeVar = "1",
+    ini.confLevelName = "0.95",
+    ini.NdrawsValue   = "200",
+    ini.RNGseedName   = "")
+  dialog.values <- getDialog("DCCVpCIWTP", defaults)
+
   env <- environment()
   
   outputFrame <- tkframe(top)
@@ -250,7 +315,7 @@ DCCVpCIWTP <- function() {
   settingFrame <- tkframe(inputsFrame)
   RNGseedFrame <- tkframe(top)
   
-  outputName <- tclVar("WTP") 
+  outputName <- tclVar(dialog.values$ini.outputName)
   output     <- ttkentry(outputFrame, width = "20", textvariable = outputName)
 
   # Bootstrap method
@@ -259,38 +324,55 @@ DCCVpCIWTP <- function() {
                buttons = c("Parametric", "Nonparametric"),
                values  = c("1", "2"),
                labels  = gettextRcmdr(c("Krinsky and Robb", "Bootstrap")),
-               initialValue = "1",
+               initialValue = dialog.values$ini.methodtypeVar,
                title   = gettextRcmdr("Simulation method"))
 
   # Confidence level
-  confLevelName <- tclVar("0.95")
-  NdrawsValue   <- tclVar("200")
-  Ndraws        <- ttkentry(settingFrame, width = "6", textvariable = NdrawsValue)
-  confLevel     <- ttkentry(settingFrame, width = "6", textvariable = confLevelName)
+  confLevelName <- tclVar(dialog.values$ini.confLevelName)
+  NdrawsValue   <- tclVar(dialog.values$ini.NdrawsValue)
+  Ndraws        <- ttkentry(settingFrame, width = "6",
+                            textvariable = NdrawsValue)
+  confLevel     <- ttkentry(settingFrame, width = "6",
+                            textvariable = confLevelName)
 
   # Random number generator seed
-  RNGseedName <- tclVar("")
-  RNGseed     <- ttkentry(RNGseedFrame, width = "10", textvariable = RNGseedName)
+  RNGseedName <- tclVar(dialog.values$ini.RNGseedName)
+  RNGseed     <- ttkentry(RNGseedFrame, width = "10",
+                          textvariable = RNGseedName)
 
   onOK <- function() {
     outputValue <- trim.blanks(tclvalue(outputName))
+
+
+    putDialog("DCCVpCIWTP", list(
+      ini.outputName    = tclvalue(outputName),
+      ini.methodtypeVar = tclvalue(methodtypeVariable),
+      ini.NdrawsValue   = tclvalue(NdrawsValue),
+      ini.confLevelName = tclvalue(confLevelName),
+      ini.RNGseedName   = tclvalue(RNGseedName)))
+
+
     closeDialog()
     
     if (tclvalue(methodtypeVariable) == "1") {
-      cmd.method <- paste("krCI(obj = ", ActiveModel(), ", nsim = ", sep = "")
+      cmd.method <- paste("krCI(obj = ", ActiveModel(), ", nsim = ",
+                          sep = "")
     } else {
-      cmd.method <- paste("bootCI(obj = ", ActiveModel(), ", nboot = ", sep = "")
+      cmd.method <- paste("bootCI(obj = ", ActiveModel(), ", nboot = ",
+                          sep = "")
     }
     
     if (!is.na(as.numeric(tclvalue(RNGseedName)))) {
-      cmd.seed <- paste("set.seed(", as.numeric(tclvalue(RNGseedName)), ")", sep = "")
+      cmd.seed <- paste("set.seed(", as.numeric(tclvalue(RNGseedName)), ")",
+                        sep = "")
     }
 
     cmd <- paste(cmd.method, as.numeric(tclvalue(NdrawsValue)),
                  ", CI = ", as.numeric(tclvalue(confLevelName)), ")", sep = "")
     
     if (!is.na(as.numeric(tclvalue(RNGseedName)))) {
-      doItAndPrint(paste(cmd.seed, ";", outputValue, " <- ", cmd, sep = ""))
+      doItAndPrint(paste(cmd.seed, sep = ""))
+      doItAndPrint(paste(outputValue, " <- ", cmd, sep = ""))
     } else {
       doItAndPrint(paste(outputValue, " <- ", cmd, sep = ""))
     }
@@ -300,7 +382,7 @@ DCCVpCIWTP <- function() {
 
   OKCancelHelp(helpSubject = "krCI",
                reset       = "DCCVpCIWTP",
-               apply       = NULL)
+               apply       = "DCCVpCIWTP")
 
   tkgrid(labelRcmdr(outputFrame,
                     text = gettextRcmdr("Name for output ")),
@@ -333,43 +415,64 @@ DCCVpCIWTP <- function() {
 
 ###############################################################################
 DCCVpPlot <- function() {
-  defaults <- list(initial.scoretype = "bw",
-                   initial.positiontype = "1")
-  dialog.values <- getDialog("bws1CountPlot", defaults)
   initializeDialog(title = gettextRcmdr("Draw Survival Function"))
+  defaults <- list(
+    ini.mainVar  = "",
+    ini.xlabVar  = "",
+    ini.ylabVar  = "",
+    ini.xFromVar = "",
+    ini.xToVar   = "",
+    ini.yFromVar = "",
+    ini.yToVar   = "",
+    ini.bFromVar = "",
+    ini.bToVar   = "")
+  dialog.values <- getDialog("DCCVpPlot", defaults)
+
   
   # Titles
   titleFrame     <- tkframe(top)
   titleSub1Frame <- tkframe(titleFrame)
 
-  mainVar   <- tclVar("")
+  mainVar   <- tclVar(dialog.values$ini.mainVar)
   mainEntry <- ttkentry(titleSub1Frame, width = "50", textvariable = mainVar)
-  xlabVar   <- tclVar("")
+  xlabVar   <- tclVar(dialog.values$ini.xlabVar)
   xlabEntry <- ttkentry(titleSub1Frame, width = "50", textvariable = xlabVar)
-  ylabVar   <- tclVar("")
+  ylabVar   <- tclVar(dialog.values$ini.ylabVar)
   ylabEntry <- ttkentry(titleSub1Frame, width = "50", textvariable = ylabVar)
   
   # Ranges
   rangeFrame   <- tkframe(top)
   xyRangeFrame <- tkframe(rangeFrame)
   
-  xFromVar <- tclVar("")
+  xFromVar <- tclVar(dialog.values$ini.xFromVar)
   xFrom    <- ttkentry(xyRangeFrame, width = "6", textvariable = xFromVar)
-  xToVar   <- tclVar("")
+  xToVar   <- tclVar(dialog.values$ini.xToVar)
   xTo      <- ttkentry(xyRangeFrame, width = "6", textvariable = xToVar)
   
-  yFromVar <- tclVar("")
+  yFromVar <- tclVar(dialog.values$ini.yFromVar)
   yFrom    <- ttkentry(xyRangeFrame, width = "6", textvariable = yFromVar)
-  yToVar   <- tclVar("")
+  yToVar   <- tclVar(dialog.values$ini.yToVar)
   yTo      <- ttkentry(xyRangeFrame, width = "6", textvariable = yToVar)
 
-  bFromVar <- tclVar("")
+  bFromVar <- tclVar(dialog.values$ini.bFromVar)
   bFrom    <- ttkentry(xyRangeFrame, width = "6", textvariable = bFromVar)
-  bToVar   <- tclVar("")
+  bToVar   <- tclVar(dialog.values$ini.bToVar)
   bTo      <- ttkentry(xyRangeFrame, width = "6", textvariable = bToVar)
 
   # OK button function
   onOK <- function() {
+
+    putDialog("DCCVpPlot", list(
+      ini.mainVar  = tclvalue(mainVar),
+      ini.xlabVar  = tclvalue(xlabVar),
+      ini.ylabVar  = tclvalue(ylabVar),
+      ini.xFromVar = tclvalue(xFromVar),
+      ini.xToVar   = tclvalue(xToVar),
+      ini.yFromVar = tclvalue(yFromVar),
+      ini.yToVar   = tclvalue(yToVar),
+      ini.bFromVar = tclvalue(bFromVar),
+      ini.bToVar   = tclvalue(bToVar)))
+
     closeDialog()
     
     if (tclvalue(mainVar) == "") {
@@ -422,7 +525,7 @@ DCCVpPlot <- function() {
   
   OKCancelHelp(helpSubject = "plot.dbchoice",
                reset       = "DCCVpPlot",
-               apply       = NULL)
+               apply       = "DCCVpPlot")
 
   tkgrid(labelRcmdr(titleFrame, 
                     text = gettextRcmdr("Title and labels (optional)")),
@@ -456,3 +559,7 @@ DCCVpPlot <- function() {
 }
 
 ###############################################################################
+DCCVpP <- function() {
+  activeModelP() && any(class(get(ActiveModel()))[1] == c("dbchoice", "sbchoice", "oohbchoice"))
+}
+
