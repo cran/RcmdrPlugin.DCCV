@@ -66,6 +66,9 @@ DCCVp <- function() {
   
   dcTypelFrame <- tkframe(top)
   resVarsFrame <- tkframe(top)
+
+  covariatesFrame <- tkframe(top)
+
   bidVarsFrame <- tkframe(top)
   optionsFrame <- tkframe(top)
   initParFrame <- tkframe(optionsFrame)
@@ -91,8 +94,13 @@ DCCVp <- function() {
     initialSelection = dialog.values$ini.resVar2BOX,
     title = gettextRcmdr("2nd response variable"))
   
-  modelFormula(hasLhs = FALSE, rhsExtras = NULL)
-
+  covariatesBox <- variableListBox(
+                     covariatesFrame,
+                     Variables(),
+                     title = gettextRcmdr("Covariates (pick zero or more)"),
+                     selectmode = "multiple",
+                     listHeight = 5)
+    
   bidVar1BOX <- variableComboBox(
     bidVarsFrame,
     Variables(),
@@ -129,7 +137,7 @@ DCCVp <- function() {
     resVar2 <- getSelection(resVar2BOX)
     bidVar1 <- getSelection(bidVar1BOX)
     bidVar2 <- getSelection(bidVar2BOX)
-    covVar  <- tclvalue(rhsVariable)
+    covVar  <- getSelection(covariatesBox)
     
     SBDC <- OOHB <- DBDC <- FALSE
     if (tclvalue(dcVariable) == 1) {
@@ -162,7 +170,7 @@ DCCVp <- function() {
       }
     }
     
-    if (covVar == "") {
+    if (length(covVar) == 0) {
       covVar <- "1"
     }
       
@@ -212,6 +220,11 @@ DCCVp <- function() {
         bidVars <- paste("log(", bidVar1, ") + log(", bidVar2, ")", sep = "")
       }
     }
+    
+    if (length(covVar) > 1) {
+      covVar <- paste(covVar, collapse = " + ")
+    }
+    
     rhsVars <- paste(covVar, bidVars, sep = " | ")
     formula <- paste(resVars, rhsVars, sep = " ~ ")
       
@@ -257,9 +270,8 @@ DCCVp <- function() {
          sticky = "sw")
   tkgrid(resVarsFrame, sticky = "w")
    
-  tkgrid(getFrame(xBox), sticky = "w")
-  tkgrid(outerOperatorsFrame, sticky = "w")
-  tkgrid(formulaFrame, sticky = "w")
+  tkgrid(getFrame(covariatesBox), sticky = "nw")
+  tkgrid(covariatesFrame, sticky = "w")
 
   tkgrid(getFrame(bidVar1BOX),
          labelRcmdr(bidVarsFrame, text = gettextRcmdr(" + ")),
