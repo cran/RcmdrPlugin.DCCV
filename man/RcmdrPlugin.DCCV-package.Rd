@@ -1,5 +1,6 @@
 \docType{package}
 \name{RcmdrPlugin.DCCV-package}
+\alias{RcmdrPlugin.DCCV-package}
 \alias{RcmdrPlugin.DCCV}
 \alias{DCCVp}
 \alias{DCCVpCIWTP}
@@ -64,6 +65,11 @@ Hideo Aizaki
 }
 
 \references{
+Aizaki H, Nakatani T, Sato K, Fogarty J (2022)
+R Package DCchoice for Dichotomous Choice Contingent Valuation: A Contribution to Open Scientific Software and its Impact.
+\emph{Japanese Journal of Statistics and Data Science}, 5: 871--884.
+DOI: 10.1007/s42081-022-00171-1.
+
 Aizaki H, Nakatani T, Sato K (2014) 
 \emph{Stated Preference Methods Using R}. 
 Chapman and Hall/CRC. 

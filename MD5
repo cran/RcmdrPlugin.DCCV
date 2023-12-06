@@ -1,7 +1,7 @@
-3291de93bf6aa6dbf2f72092d79bd85d *DESCRIPTION
+a5a70d149e611ea32d369b03319fff0d *DESCRIPTION
 ba6101b56d17e14a6324eb0624748611 *NAMESPACE
-469bde9b58ad4d312ed2468d3f5cc1dd *NEWS
-aab5a9a43f62910c8375988d935ab4af *R/RcmdrPlugin.DCCV.R
+cfa03cd5f9dd8f97dbb59e0d0604d6af *NEWS
+dda82007caedd8dbae0c71c36ba05f52 *R/RcmdrPlugin.DCCV.R
 32f120553736a0c20f9bdec772111d6b *R/globals.R
 7047bf9f150c87d6b903c92fd053bc2e *inst/etc/menus.txt
-9e1472b99387966dbdc1d1aa0a5428af *man/RcmdrPlugin.DCCV-package.Rd
+175985672c706d7381d75ba6c402f1a8 *man/RcmdrPlugin.DCCV-package.Rd

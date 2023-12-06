@@ -58,9 +58,9 @@ DCCVp <- function() {
 
  
   UpdateModelNumber()
-  modelName  <- tclVar(paste("Model.", getRcmdr("modelNumber"), sep = ""))
+  modelName  <- tclVar(paste("DCCVmodel.", getRcmdr("modelNumber"), sep = ""))
   modelFrame <- tkframe(top)
-  model      <- ttkentry(modelFrame, width = "20", textvariable = modelName)
+  model      <- ttkentry(modelFrame, width = "14", textvariable = modelName)
    
   outputFrame  <- tkframe(top)
   
@@ -328,7 +328,7 @@ DCCVpCIWTP <- function() {
   RNGseedFrame <- tkframe(top)
   
   outputName <- tclVar(dialog.values$ini.outputName)
-  output     <- ttkentry(outputFrame, width = "20", textvariable = outputName)
+  output     <- ttkentry(outputFrame, width = "14", textvariable = outputName)
 
   # Bootstrap method
   radioButtons(methodFrame, 
@@ -337,7 +337,7 @@ DCCVpCIWTP <- function() {
                values  = c("1", "2"),
                labels  = gettextRcmdr(c("Krinsky and Robb", "Bootstrap")),
                initialValue = dialog.values$ini.methodtypeVar,
-               title   = gettextRcmdr("Simulation method"))
+               title   = gettextRcmdr("Calculation method"))
 
   # Confidence level
   confLevelName <- tclVar(dialog.values$ini.confLevelName)
