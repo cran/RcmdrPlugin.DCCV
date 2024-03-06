@@ -19,8 +19,8 @@
 }
 
 ###############################################################################
-DCCVp <- function() {
-  initializeDialog(title = gettextRcmdr("Fit Parametric Model"))
+dccvModel <- function() {
+  initializeDialog(title = gettextRcmdr("Fit Model to DCCV Data"))
   defaults <- list(
     ini.dcVariable  = "1",
     ini.resVar1BOX  = gettextRcmdr("<no variable selected>"),
@@ -30,7 +30,7 @@ DCCVp <- function() {
     ini.logCheckVar = "0",
     ini.distVar     = "'logistic'",
     ini.initParName = "")
-  dialog.values <- getDialog("DCCVp", defaults)
+  dialog.values <- getDialog("dccvModel", defaults)
 
 
   .activeModel <- ActiveModel()
@@ -152,7 +152,7 @@ DCCVp <- function() {
       if (trim.blanks(resVar2) != gettextRcmdr("<no variable selected>") ||
           trim.blanks(bidVar2) != gettextRcmdr("<no variable selected>")) {
         errorCondition(
-          recall = DCCVp,
+          recall = dccvModel,
           message = gettextRcmdr(
             "2nd response and bid variables should not be selected for SBDC"),
           model = TRUE)
@@ -162,7 +162,7 @@ DCCVp <- function() {
       if (trim.blanks(resVar2) == gettextRcmdr("<no variable selected>") ||
           trim.blanks(bidVar2) == gettextRcmdr("<no variable selected>")) {
         errorCondition(
-          recall = DCCVp,
+          recall = dccvModel,
           message = gettextRcmdr(
             "2nd response and bid variables should be selected for OOHB/DBDC"),
           model = TRUE)
@@ -181,7 +181,7 @@ DCCVp <- function() {
     }
 
 
-    putDialog("DCCVp", list(
+    putDialog("dccvModel", list(
       ini.dcVariable = tclvalue(dcVariable),
       ini.resVar1BOX  = resVar1,
       ini.resVar2BOX  = resVar2,
@@ -246,10 +246,10 @@ DCCVp <- function() {
   }
 
 
-  OKCancelHelp(helpSubject = "dbchoice",
+  OKCancelHelp(helpSubject = "dccvModel",
                model       = TRUE,
-               reset       = "resetDCCVpModel",
-               apply       = "DCCVp")
+               reset       = "resetDccvModel",
+               apply       = "dccvModel")
 
   tkgrid(labelRcmdr(modelFrame, text = gettextRcmdr("Name for model ")),
          model, sticky = "w")
@@ -299,16 +299,16 @@ DCCVp <- function() {
 }
 
 
-resetDCCVpModel <- function(){
+resetDccvModel <- function(){
   putRcmdr("reset.model", TRUE)
-  putDialog("DCCVp", NULL)
-  putDialog("DCCVp", NULL, resettable = FALSE)
-  DCCVp()
+  putDialog("dccvModel", NULL)
+  putDialog("dccvModel", NULL, resettable = FALSE)
+  dccvModel()
 }
 
 
 ###############################################################################
-DCCVpCIWTP <- function() {
+dccvWtp <- function() {
   initializeDialog(
     title = gettextRcmdr("Calculate Confidence Intervals for WTP"))
   defaults <- list(
@@ -317,7 +317,7 @@ DCCVpCIWTP <- function() {
     ini.confLevelName = "0.95",
     ini.NdrawsValue   = "200",
     ini.RNGseedName   = "")
-  dialog.values <- getDialog("DCCVpCIWTP", defaults)
+  dialog.values <- getDialog("dccvWtp", defaults)
 
   env <- environment()
   
@@ -356,7 +356,7 @@ DCCVpCIWTP <- function() {
     outputValue <- trim.blanks(tclvalue(outputName))
 
 
-    putDialog("DCCVpCIWTP", list(
+    putDialog("dccvWtp", list(
       ini.outputName    = tclvalue(outputName),
       ini.methodtypeVar = tclvalue(methodtypeVariable),
       ini.NdrawsValue   = tclvalue(NdrawsValue),
@@ -392,9 +392,9 @@ DCCVpCIWTP <- function() {
     tkfocus(CommanderWindow())
   }
 
-  OKCancelHelp(helpSubject = "krCI",
-               reset       = "DCCVpCIWTP",
-               apply       = "DCCVpCIWTP")
+  OKCancelHelp(helpSubject = "dccvWtp",
+               reset       = "dccvWtp",
+               apply       = "dccvWtp")
 
   tkgrid(labelRcmdr(outputFrame,
                     text = gettextRcmdr("Name for output ")),
@@ -426,7 +426,7 @@ DCCVpCIWTP <- function() {
 }
 
 ###############################################################################
-DCCVpPlot <- function() {
+dccvPlot <- function() {
   initializeDialog(title = gettextRcmdr("Draw Survival Function"))
   defaults <- list(
     ini.mainVar  = "",
@@ -438,7 +438,7 @@ DCCVpPlot <- function() {
     ini.yToVar   = "",
     ini.bFromVar = "",
     ini.bToVar   = "")
-  dialog.values <- getDialog("DCCVpPlot", defaults)
+  dialog.values <- getDialog("dccvPlot", defaults)
 
   
   # Titles
@@ -474,7 +474,7 @@ DCCVpPlot <- function() {
   # OK button function
   onOK <- function() {
 
-    putDialog("DCCVpPlot", list(
+    putDialog("dccvPlot", list(
       ini.mainVar  = tclvalue(mainVar),
       ini.xlabVar  = tclvalue(xlabVar),
       ini.ylabVar  = tclvalue(ylabVar),
@@ -535,14 +535,14 @@ DCCVpPlot <- function() {
   }
   
   
-  OKCancelHelp(helpSubject = "plot.dbchoice",
-               reset       = "DCCVpPlot",
-               apply       = "DCCVpPlot")
+  OKCancelHelp(helpSubject = "dccvPlot",
+               reset       = "dccvPlot",
+               apply       = "dccvPlot")
 
   tkgrid(labelRcmdr(titleFrame, 
                     text = gettextRcmdr("Title and labels (optional)")),
          sticky = "w")
-  tkgrid(labelRcmdr(titleSub1Frame, text = gettextRcmdr("title ")),
+  tkgrid(labelRcmdr(titleSub1Frame, text = gettextRcmdr("Title ")),
          mainEntry, sticky = "w")
   tkgrid(labelRcmdr(titleSub1Frame, text = gettextRcmdr("x-axis ")),
          xlabEntry, sticky = "w")
@@ -560,7 +560,7 @@ DCCVpPlot <- function() {
   tkgrid(labelRcmdr(xyRangeFrame, text = gettextRcmdr("y-axis from ")), yFrom,
          labelRcmdr(xyRangeFrame, text = gettextRcmdr(" to ")), yTo,
          sticky = "w")
-  tkgrid(labelRcmdr(xyRangeFrame, text = gettextRcmdr("bid     from ")), bFrom,
+  tkgrid(labelRcmdr(xyRangeFrame, text = gettextRcmdr("Bid     from ")), bFrom,
          labelRcmdr(xyRangeFrame, text = gettextRcmdr(" to ")), bTo,
          sticky = "w")
   tkgrid(xyRangeFrame, sticky = "w")
@@ -571,7 +571,7 @@ DCCVpPlot <- function() {
 }
 
 ###############################################################################
-DCCVpP <- function() {
+dccvModelP <- function() {
   activeModelP() && any(class(get(ActiveModel()))[1] == c("dbchoice", "sbchoice", "oohbchoice"))
 }
 

@@ -1,7 +1,7 @@
 # type  menu/item     operation/parent  label                                        command/menu    activation          install?
 menu    dccvMenu      topMenu           ""                                           ""              ""                  ""
-item    dccvMenu      command           "Fit parametric model..."                    DCCVp           "activeDataSetP()"  "packageAvailable('DCchoice')"
-item    dccvMenu      command           "Calculate confidence intervals for WTP..."  DCCVpCIWTP      "DCCVpP()"          "packageAvailable('DCchoice')"
-item    dccvMenu      command           "Draw survival function..."                  DCCVpPlot       "DCCVpP()"          "packageAvailable('DCchoice')"
+item    dccvMenu      command           "Fit model..."                               dccvModel       "activeDataSetP()"  "packageAvailable('DCchoice')"
+item    dccvMenu      command           "Calculate confidence intervals for WTP..."  dccvWtp         "dccvModelP()"      "packageAvailable('DCchoice')"
+item    dccvMenu      command           "Draw survival function..."                  dccvPlot        "dccvModelP()"      "packageAvailable('DCchoice')"
 item    topMenu       cascade           "DCCV"                                       dccvMenu        ""                  "packageAvailable('DCchoice')"
 

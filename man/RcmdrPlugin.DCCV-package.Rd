@@ -2,11 +2,6 @@
 \name{RcmdrPlugin.DCCV-package}
 \alias{RcmdrPlugin.DCCV-package}
 \alias{RcmdrPlugin.DCCV}
-\alias{DCCVp}
-\alias{DCCVpCIWTP}
-\alias{DCCVpPlot}
-\alias{DCCVpP}
-\alias{resetDCCVpModel}
 
 \title{R Commander Plug-in for Parametric Analysis of Dichotomous Choice 
 Contingent Valuation Data}
@@ -25,31 +20,31 @@ This package is an R Commander plug-in package for parametric analysis of
 dichotomous choice contingent valuation (DCCV) data. It depends on 
 \pkg{DCchoice} (Nakatani et al. 2020) and \pkg{Rcmdr} (Fox 2005, 2017; 
 Fox and Bouchet-Valat 2020). Refer to \pkg{\link[DCchoice]{DCchoice-package}}, 
-Aizaki et al. (2014), and 
-\dQuote{Non-Market Valuation with R} <\url{http://lab.agr.hokudai.ac.jp/nmvr/}> 
+Aizaki et al. (2014, 2022), and 
+\sQuote{Non-Market Valuation with R} <\url{http://lab.agr.hokudai.ac.jp/nmvr/}> 
 for a brief introduction to DCCV in R.
 
-After successfully installing and loading the \pkg{RcmdrPlugin.DCCV}, 
-the R Commander window will appear, and then you will find \dQuote{DCCV} 
+After successfully installing and loading \pkg{RcmdrPlugin.DCCV}, 
+the R Commander window will appear, and then you will find \sQuote{\code{DCCV}} 
 added to the top-level menus in the R Commander window.
 
-Selecting \dQuote{DCCV} displays some menu items. When selecting a menu 
-item, the corresponding dialog box is open. The following dialog boxes 
+Selecting \sQuote{\code{DCCV}} displays some menu items. When selecting a menu 
+item, the corresponding dialog box opens. The following dialog boxes 
 are provided by \pkg{RcmdrPlugin.DCCV}:
 \itemize{
-\item The dialog box for \dQuote{Fit parametric model...} implements a 
+\item The dialog box for \sQuote{\code{Fit Model...}} implements a 
 parametric analysis of DCCV data using \code{\link[DCchoice]{sbchoice}} 
 (single-bounded DCCV),
 \code{\link[DCchoice]{oohbchoice}} (one-and-one-half-bounded DCCV), or 
 \code{\link[DCchoice]{dbchoice}} (double-bounded DCCV) in \pkg{DCchoice}.
 
-\item The dialog box for \dQuote{Calculate confidence intervals for 
-WTP...} 
+\item The dialog box for \sQuote{\code{Calculate confidence intervals for 
+WTP...}} 
 calculates confidence intervals for willigness to pay (WTP) from the 
 fitted model using \code{\link[DCchoice]{krCI}} or 
 \code{\link[DCchoice]{bootCI}} in \pkg{DCchoice}.
 
-\item The dialog box for \dQuote{Draw survival function...} 
+\item The dialog box for \sQuote{\code{Draw survival function...}} 
 draws a survival function of the fitted model using 
 \code{\link[DCchoice]{plot.sbchoice}} or \code{\link[DCchoice]{plot.dbchoice}} 
 in \pkg{DCchoice}.
@@ -66,7 +61,8 @@ Hideo Aizaki
 
 \references{
 Aizaki H, Nakatani T, Sato K, Fogarty J (2022)
-R Package DCchoice for Dichotomous Choice Contingent Valuation: A Contribution to Open Scientific Software and its Impact.
+R Package DCchoice for Dichotomous Choice Contingent Valuation: 
+A Contribution to Open Scientific Software and its Impact.
 \emph{Japanese Journal of Statistics and Data Science}, 5: 871--884.
 DOI: 10.1007/s42081-022-00171-1.
 

@@ -1,5 +1,10 @@
 Changes to package RcmdrPlugin.DCCV
 
+2024-03-06, version 0.1-4
+- Added help files.
+- Modified appearances of dialog boxes.
+- Modified function names.
+
 2023-12-06, version 0.1-3
 - Modified dialog boxes for fitting model and calculating WTP.
 
