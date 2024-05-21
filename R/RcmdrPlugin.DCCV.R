@@ -22,14 +22,15 @@
 dccvModel <- function() {
   initializeDialog(title = gettextRcmdr("Fit Model to DCCV Data"))
   defaults <- list(
-    ini.dcVariable  = "1",
-    ini.resVar1BOX  = gettextRcmdr("<no variable selected>"),
-    ini.resVar2BOX  = gettextRcmdr("<no variable selected>"),
-    ini.bidVar1BOX  = gettextRcmdr("<no variable selected>"),
-    ini.bidVar2BOX  = gettextRcmdr("<no variable selected>"),
-    ini.logCheckVar = "0",
-    ini.distVar     = "'logistic'",
-    ini.initParName = "")
+    ini.dcVariable    = "1",
+    ini.resVar1BOX    = gettextRcmdr("<no variable selected>"),
+    ini.resVar2BOX    = gettextRcmdr("<no variable selected>"),
+    ini.covariatesVar = NULL,
+    ini.bidVar1BOX    = gettextRcmdr("<no variable selected>"),
+    ini.bidVar2BOX    = gettextRcmdr("<no variable selected>"),
+    ini.logCheckVar   = "0",
+    ini.distVar       = "'logistic'",
+    ini.initParName   = "")
   dialog.values <- getDialog("dccvModel", defaults)
 
 
@@ -99,7 +100,9 @@ dccvModel <- function() {
                      Variables(),
                      title = gettextRcmdr("Covariates (pick zero or more)"),
                      selectmode = "multiple",
-                     listHeight = 5)
+                     listHeight = 5,
+                     initialSelection = varPosn(dialog.values$ini.covariatesVar,
+                                                vars = Variables()))
     
   bidVar1BOX <- variableComboBox(
     bidVarsFrame,
@@ -182,14 +185,15 @@ dccvModel <- function() {
 
 
     putDialog("dccvModel", list(
-      ini.dcVariable = tclvalue(dcVariable),
-      ini.resVar1BOX  = resVar1,
-      ini.resVar2BOX  = resVar2,
-      ini.bidVar1BOX  = bidVar1,
-      ini.bidVar2BOX  = bidVar2,
-      ini.logCheckVar = tclvalue(logCheckVar),
-      ini.distVar     = tclvalue(distVariable),
-      ini.initParName = tclvalue(initParName)))    
+      ini.dcVariable    = tclvalue(dcVariable),
+      ini.resVar1BOX    = resVar1,
+      ini.resVar2BOX    = resVar2,
+      ini.covariatesVar = covVar,
+      ini.bidVar1BOX    = bidVar1,
+      ini.bidVar2BOX    = bidVar2,
+      ini.logCheckVar   = tclvalue(logCheckVar),
+      ini.distVar       = tclvalue(distVariable),
+      ini.initParName   = tclvalue(initParName)))    
 
                   
     closeDialog()

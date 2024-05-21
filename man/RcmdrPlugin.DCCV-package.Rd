@@ -22,7 +22,8 @@ dichotomous choice contingent valuation (DCCV) data. It depends on
 Fox and Bouchet-Valat 2020). Refer to \pkg{\link[DCchoice]{DCchoice-package}}, 
 Aizaki et al. (2014, 2022), and 
 \sQuote{Non-Market Valuation with R} <\url{http://lab.agr.hokudai.ac.jp/nmvr/}> 
-for a brief introduction to DCCV in R.
+for a brief introduction to DCCV in R. 
+A manual for this package is available at <\url{https://sites.google.com/view/r4sp/rcmdrplugin}> 
 
 After successfully installing and loading \pkg{RcmdrPlugin.DCCV}, 
 the R Commander window will appear, and then you will find \sQuote{\code{DCCV}} 
