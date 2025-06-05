@@ -579,3 +579,432 @@ dccvModelP <- function() {
   activeModelP() && any(class(get(ActiveModel()))[1] == c("dbchoice", "sbchoice", "oohbchoice"))
 }
 
+###############################################################################
+dccvCollectResponseSet <- function() {
+  initializeDialog(title = gettextRcmdr("Set Options for Response Collection"))
+  defaults <- list(ini.designName   = "DCCVdesign",
+                   ini.bidRow       = "Random",
+                   ini.saveVariable = "1")
+  dialog.values = getDialog("dccvCollectResponseSet", defaults)
+  
+  inputsFrame      <- tkframe(top)
+  tableFrame       <- tkframe(inputsFrame)
+  importFrame      <- tkframe(inputsFrame)
+  currencyFrame    <- tkframe(inputsFrame)
+  selectBidIdFrame <- tkframe(inputsFrame)
+  saveFrame        <- tkframe(inputsFrame)
+  
+  if (exists("bidTable")) {
+    nRowsBids <- nrow(bidTable)
+    nColsBids <- ncol(bidTable)
+    bidIDs    <- as.character(1:nRowsBids)
+  } else {
+    nRowsBids <- 0
+    nColsBids <- 0
+    bidIDs    <- NULL
+  }
+  
+  bidIdBox <- variableComboBox(
+    selectBidIdFrame,
+    bidIDs,
+    nullSelection = "Random",
+    initialSelection = dialog.values$ini.bidRow,
+    title = gettextRcmdr("Bid id")
+  )
+  
+  currencyBox <- variableComboBox(
+    currencyFrame,
+    ISOcodes::ISO_4217$Letter,
+    nullSelection = NULL,
+    initialSelection = "USD",
+    title = gettextRcmdr("Currency")
+  )
+  
+  saveVariable <- tclVar(dialog.values$ini.saveVariable)
+  saveCheckBox <- ttkcheckbutton(saveFrame, variable = saveVariable)
+  
+  onOK <- function() {
+    if (!exists("bidTable")) {
+      Message(gettextRcmdr("Please import bid table"), type = "warning")
+      closeDialog()
+      dccvCollectResponseSet()
+      return()
+    }
+    
+    currency <- getSelection(currencyBox)
+    bidId    <- getSelection(bidIdBox)
+    
+    if (tclvalue(saveVariable) == 1) {
+      SAVE <- TRUE
+    } else {
+      SAVE <- FALSE
+    }
+    
+    closeDialog()
+    
+    if (bidId == "Random") {
+      bidId <- sample(x = 1:nRowsBids, size = 1)
+    }
+    
+    putRcmdr("DCCVcurrency.SAVE", currency)
+    putRcmdr("DCCVresponse.SAVE", SAVE)
+    putRcmdr("DCCVbidId.SAVE", bidId)
+    
+    dccvCollectResponse()
+    
+    tkfocus(CommanderWindow())
+  }
+  
+  onImport <- function() {
+    closeDialog()
+    
+    file <- tclvalue(tkgetOpenFile(filetypes = gettextRcmdr(
+      '{"CSV" {".csv" ".CSV"}}')))
+    if (file == "") {
+      return()
+    }
+    setBusyCursor()
+    on.exit(setIdleCursor)
+    
+    cmd <- paste0('bidTable <-read.csv("', file, '", header = FALSE)')
+    loadedObjects <- justDoIt(cmd)
+    logger(cmd)
+    
+    dccvCollectResponseSet()
+    
+    tkfocus(CommanderWindow())
+  }
+  
+  OKCancelHelp(helpSubject = "dccvCollectResponse")
+  
+  importButton <- buttonRcmdr(
+    importFrame,
+    text = gettextRcmdr("Import bid table"),
+    foreground = "darkgreen",
+    width = "18",
+    command = onImport,
+    default = "normal",
+    borderwidth = 3
+  )
+  
+  if (exists("bidTable")) {
+    if (nColsBids == 1) {
+      tkgrid(labelRcmdr(tableFrame, text = paste0("id")),
+             labelRcmdr(tableFrame, text = paste0("bid1")),
+             sticky = "w")
+    } else if (nColsBids == 2) {
+      tkgrid(labelRcmdr(tableFrame, text = paste0("id")),
+             labelRcmdr(tableFrame, text = paste0("bidL")),
+             labelRcmdr(tableFrame, text = paste0("bidH")),
+             sticky = "w")
+      
+    } else {
+      tkgrid(labelRcmdr(tableFrame, text = paste0("id")),
+             labelRcmdr(tableFrame, text = paste0("bid1")),
+             labelRcmdr(tableFrame, text = paste0("bid2L")),
+             labelRcmdr(tableFrame, text = paste0("bid2H")),
+             sticky = "w")
+    }
+    for (i in 1:nRowsBids) {
+      cmd <- paste0("labelRcmdr(tableFrame, text = paste0('", i, "')), ")
+      for (j in 1:nColsBids) {
+        cmd <- paste0(cmd,
+                      paste0("labelRcmdr(tableFrame, text = paste0(",
+                             bidTable[i, j],
+                             ")), "))
+      }
+      cmd <- paste0(cmd, paste0("sticky = 'w'"))
+      eval(parse(text = paste0("tkgrid(", cmd, ")")))
+    }
+  } else {
+    tkgrid(labelRcmdr(tableFrame,
+                      text = paste0("No bid table imported"),
+                      fg = "red"),
+           sticky = "w")
+  }
+  
+  tkgrid(tableFrame, sticky = "w")
+  
+  tkgrid(importButton, sticky = "w")
+  tkconfigure(importButton, takefocus = 0)
+  tkgrid(importFrame, sticky = "w")
+  
+  tkgrid(getFrame(currencyBox), sticky = "nw", pady = c(5, 0))
+  tkgrid(currencyFrame, sticky = "w")
+  
+  tkgrid(getFrame(bidIdBox), sticky = "nw", pady = c(5, 0))
+  tkgrid(selectBidIdFrame, sticky = "w")
+  
+  tkgrid(
+    saveCheckBox,
+    labelRcmdr(
+      saveFrame,
+      text = gettextRcmdr("Save to file")),
+    sticky = "w",
+    pady = c(5, 0)
+  )
+  
+  tkgrid(selectBidIdFrame, sticky = "nw")
+  tkgrid(saveFrame, sticky = "nw")
+  tkgrid(inputsFrame, sticky = "nw")
+  tkgrid(buttonsFrame, columnspa = 2, sticky = "w")
+  
+  dialogSuffix()
+}
+
+###############################################################################
+
+dccvCollectResponse <- function() {
+  initializeDialog(title = gettextRcmdr("Collect Responses to DCCV Questions"))
+  defaults <- list(
+    ini.Q = 1,
+    ini.R = NULL,
+    ini.responseName = "<no response selected>"
+  )
+  dialog.values <- getDialog("dccvCollectResponse", defaults)
+  
+  currency <- getRcmdr("DCCVcurrency.SAVE")
+  save     <- getRcmdr("DCCVresponse.SAVE")
+  bidrow   <- getRcmdr("DCCVbidId.SAVE")
+  
+  if (ncol(bidTable) == 1) {
+    nQues = 1
+    dccvFormat = "SB"
+  } else if (ncol(bidTable) == 2) {
+    nQues = 2
+    dccvFormat = "OOHB"
+    if (dialog.values$ini.Q == 1) {
+      LorH = sample(x = c(1, 2), size = 1)
+      putRcmdr("DCCVLorH.SAVE", LorH)
+    } else {
+      LorH = getRcmdr("DCCVLorH.SAVE")
+    }
+  } else {
+    nQues = 2
+    dccvFormat = "DB"
+  }
+  
+  inputsFrame   <- tkframe(top)
+  responseFrame <- tkframe(inputsFrame)
+  okcancelFrame <- tkframe(top)
+  okFrame       <- tkframe(okcancelFrame)
+  cancelFrame   <- tkframe(okcancelFrame)
+  
+  response <- variableComboBox(
+    responseFrame,
+    variableList = c("Yes", "No"),
+    nullSelection = "<no response selected>",
+    adjustWidth = TRUE)
+  
+  onOK <- function() {
+    responseName <- getSelection(response)
+    
+    if (responseName == "<no response selected>") {
+      Message(gettextRcmdr("Please respond to the question"), type = "warning")
+      closeDialog()
+      dccvCollectResponse()
+      return()
+    }
+    
+    if (dialog.values$ini.Q == 1) {
+      set.seed(seed = NULL)
+      justDoIt(paste0("MyDCCVresponses <- c(", sample.int(1e10, 1), ")"))
+    }
+    
+    if (responseName == "Yes") {
+      R = 1
+    } else {
+      R = 0
+    }
+    
+    putDialog("dccvCollectResponse", list(
+      ini.Q = dialog.values$ini.Q + 1,
+      ini.R = R,
+      ini.responseName = "<no response selected>"))
+    
+    justDoIt(paste0("MyDCCVresponses <- c(MyDCCVresponses, ", R, ")"))
+    
+    closeDialog()
+    
+    if (dccvFormat == "SB") {
+      COMPLETE = TRUE
+    } else if (dccvFormat == "DB") {
+      if (dialog.values$ini.Q < nQues) {
+        COMPLETE = FALSE
+      } else {
+        COMPLETE = TRUE
+      }
+    } else {
+      if (LorH == 1 & dialog.values$ini.Q == 1 & R == 0) {
+        COMPLETE = TRUE
+        justDoIt(paste0("MyDCCVresponses <- c(MyDCCVresponses, -9)"))
+      } else if (LorH == 2 & dialog.values$ini.Q == 1 & R == 1) {
+        COMPLETE = TRUE
+        justDoIt(paste0("MyDCCVresponses <- c(MyDCCVresponses, -9)"))
+      } else if (dialog.values$ini.Q < nQues) {
+        COMPLETE = FALSE
+      } else {
+        COMPLETE = TRUE
+      }
+    }
+    
+    if (!isTRUE(COMPLETE)) {
+      dccvCollectResponse()
+    } else {
+      putDialog("dccvCollectResponse", list(
+        ini.Q = 1,
+        ini.R = NULL,
+        ini.responseName = "<no response selected>"))
+      
+      if (dccvFormat == "SB") {
+        justDoIt(paste0("MyDCCVresponses <- c(MyDCCVresponses, ",
+                        bidTable[bidrow, 1],
+                        ")"))
+        cmd <- paste0('names(MyDCCVresponses) <- c("id", "R1", "bid1")')
+      } else if (dccvFormat == "OOHB") {
+        justDoIt(paste0("MyDCCVresponses <- c(MyDCCVresponses, ",
+                        bidTable[bidrow, 1], ", ", bidTable[bidrow, 2], ")"))
+        cmd <- paste0('names(MyDCCVresponses) <- c("id", "R1", "R2", "bidL", "bidH")')
+      } else {
+        if (dialog.values$ini.R == 1) {
+          bidCOL = 3
+        } else {
+          bidCOL =2
+        }
+        justDoIt(paste0("MyDCCVresponses <- c(MyDCCVresponses, ",
+                        bidTable[bidrow, 1], ", ",
+                        bidTable[bidrow, bidCOL], ")"))
+        cmd <- paste0('names(MyDCCVresponses) <- c("id", "R1", "R2", "bid1", "bid2")')
+      }
+      
+      justDoIt(cmd)
+      
+      doItAndPrint(paste0("MyDCCVresponses"))
+      
+      if (isTRUE(save)) {
+        saveFile <- tclvalue(tkgetSaveFile(
+          filetypes = gettextRcmdr(
+            '{"CSV Files" {".csv" ".CSV"}}'),
+          defaultextension = ".csv",
+          initialfile = "MyDCCVresponses.csv",
+          parent = CommanderWindow()))
+        if(saveFile == "") {
+          tkfocus(CommanderWindow())
+          return()
+        }
+        cmd <- paste0('write.csv(t(MyDCCVresponses), file = "', saveFile,
+                      '", row.names = FALSE)')
+        justDoIt(cmd)
+        logger(cmd)
+        Message(
+          paste0(
+            gettextRcmdr("Your responses to DCCV questions were exported to file: "),
+            saveFile),
+          type = "note")
+      }
+    }
+    tkfocus(CommanderWindow())
+  }
+  
+  onCancel <- function() {
+    closeDialog()
+    
+    putDialog("dccvCollectResponse", list(
+      ini.Q = 1,
+      ini.R = NULL,
+      ini.responseName = "<no response selected>"))
+    
+    tkfocus(CommanderWindow())
+  }
+  
+  tkgrid(
+    labelRcmdr(
+      inputsFrame,
+      text = gettextRcmdr(paste0("Question ", dialog.values$ini.Q))),
+    sticky = "w")
+  
+  if (dialog.values$ini.Q == 1) {
+    if (dccvFormat == "OOHB") {
+      bidcol <- LorH
+    } else {
+      bidcol <- 1
+    }
+  } else {
+    if (dccvFormat == "OOHB") {
+      if (LorH == 1) {
+        bidcol <- 2
+      } else {
+        bidcol <- 1
+      }
+    } else {
+      if (dialog.values$ini.R == 1) {
+        bidcol <- 3
+      } else {
+        bidcol <- 2
+      }
+    }
+  }
+  
+  Qdescription <- paste0("Are you willing to pay ", bidTable[bidrow, bidcol],
+                         " ", currency, " for the good/service/plan?")
+  
+  tkgrid(
+    labelRcmdr(
+      inputsFrame,
+      text = gettextRcmdr(Qdescription)),
+    sticky = "w")
+  
+  tkgrid(
+    labelRcmdr(
+      responseFrame,
+      text = "My response: "),
+    getFrame(response),
+    sticky = "w",
+    pady = c(10, 0))
+  
+  tkgrid(responseFrame, sticky = "w")
+  
+  okButton <- buttonRcmdr(
+    okFrame,
+    text = gettextRcmdr("OK"),
+    foreground = "darkgreen",
+    width = 10,
+    command = onOK,
+    default = "active",
+    borderwidth = 3,
+    image = "::image::okIcon",
+    compound = "left")
+  
+  cancelButton <- buttonRcmdr(
+    cancelFrame,
+    text = gettextRcmdr("Cancel"),
+    foreground = "darkgreen",
+    width = 10,
+    command = onCancel,
+    default = "normal",
+    borderwidth = 3,
+    image = "::image::cancelIcon",
+    compound = "left")
+  
+  tkgrid(okButton, sticky = "w")
+  tkconfigure(okButton, takefocus = 0)
+  
+  tkgrid(cancelButton, sticky = "w")
+  tkconfigure(cancelButton, takefocus = 0)
+  
+  tkgrid(
+    labelRcmdr(
+      inputsFrame,
+      text = ""),
+    sticky = "w")
+  
+  tkgrid(inputsFrame, sticky = "nw")
+  
+  tkgrid(okFrame, cancelFrame, sticky = "nw")
+  
+  tkgrid(okcancelFrame, sticky = "w")
+  
+  dialogSuffix()
+}
+
+###############################################################################

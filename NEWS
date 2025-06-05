@@ -1,5 +1,11 @@
 Changes to package RcmdrPlugin.DCCV
 
+2025-06-05, version 0.2-0
+- Added dialog boxes for collecting responses to questions.
+- Added help file.
+- Modified help file.
+- Modified DESCRIPTION.
+
 2024-05-21, version 0.1-5
 - Modified function.
 - Modified DESCRIPTION.

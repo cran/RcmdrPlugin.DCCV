@@ -19,9 +19,9 @@ DCCV analysis in the package DCchoice. See Carson and Hanemann (2005)
 This package is an R Commander plug-in package for parametric analysis of 
 dichotomous choice contingent valuation (DCCV) data. It depends on 
 \pkg{DCchoice} (Nakatani et al. 2020) and \pkg{Rcmdr} (Fox 2005, 2017; 
-Fox and Bouchet-Valat 2020). Refer to \pkg{\link[DCchoice]{DCchoice-package}}, 
+Fox and Bouchet-Valat 2020). Refer to \pkg{DCchoice}, 
 Aizaki et al. (2014, 2022), and 
-\sQuote{Non-Market Valuation with R} <\url{http://lab.agr.hokudai.ac.jp/nmvr/}> 
+\sQuote{Non-Market Valuation with R} <\url{https://nmvr.skr.jp/}> 
 for a brief introduction to DCCV in R. 
 A manual for this package is available at <\url{https://sites.google.com/view/r4sp/rcmdrplugin}> 
 
@@ -33,6 +33,9 @@ Selecting \sQuote{\code{DCCV}} displays some menu items. When selecting a menu
 item, the corresponding dialog box opens. The following dialog boxes 
 are provided by \pkg{RcmdrPlugin.DCCV}:
 \itemize{
+\item The dialog box for \sQuote{\code{Collect responses...}} displays
+three types of dialog boxes to collect user's responses to DCCV questions.
+
 \item The dialog box for \sQuote{\code{Fit Model...}} implements a 
 parametric analysis of DCCV data using \code{\link[DCchoice]{sbchoice}} 
 (single-bounded DCCV),
@@ -87,7 +90,7 @@ Chapman and Hall/CRC.
 DOI: 10.1201/9781315380537.
 
 Fox J, Bouchet-Valat M (2020) Rcmdr: R Commander. R package version 2.7-1.
- \url{https://socialsciences.mcmaster.ca/jfox/Misc/Rcmdr/}.
+ \url{https://cran.r-project.org/package=Rcmdr}.
 
 Nakatani T, Aizaki H, Sato K (2020) 
 DCchoice: Analyzing Dichotomous Choice Contingent Valuation Data. 
